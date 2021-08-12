@@ -1,0 +1,17 @@
+    <div class="post_create_form">
+        <div class="row p-2">
+            <div class="col-4"><h2>Create Post</h2></div>
+        </div>
+        <form method="post" id="create_form", action="{% url 'posts:add_post' %}" class="post_add_form" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row p-2">
+                <div class="col"><input name="post_title" type="text" class="form-control" required placeholder="Title"></div>
+                <div class="col"><div class="custom-file">
+                      <input name="post_file" type="file" class="custom-file-input" id="customFile">
+                      <label class="custom-file-label" for="customFile">Choose file</label>
+                </div></div>
+            </div>
+            <div class="row p-2"> <div class="col"> <input name="post_desc" class="form-control" type="text" placeholder="Default input"> </div> </div>
+            <div class="row p-2"><div class="col-4"> <button class="btn btn-primary btn-mb-2" type="submit"> Post </button> </div></div>
+        </form>
+    </div>

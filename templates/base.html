@@ -4,17 +4,22 @@
     <Title>App Name</Title>
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://kit.fontawesome.com/7f593e82f7.js" crossorigin="anonymous"></script>
+
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
+
     {% load static %}
-    <script src="static/scripts/main.js"></script>
+    <script src="{% static 'scripts/main.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'styles/styles.css' %} "></link>
 
 </head>
 <body>
 {% include 'navbar.html' %}
-<div class="container">
+<div class="container top_container">
     <br>
 {% block content %}
     Replace This
@@ -22,4 +27,78 @@
 </div>
 {% include 'footer.html' %}
 </body>
+
+<script>
+    $(document).ready( ()=>{
+    $(".comment_edit_form").on('submit',edit_comment_handler)
+    $(".comment_add_form").on('submit', add_comment_handler)
+    $(".delete_comment").on('click', delete_comment_handler)
+    $(".react_button").on('click', react_handler)
+    $(".search_form").on('submit', search_handler)
+    $(".search_bar").on('keyup', search_handler)
+    $(".delete_post").on('click', delete_post_handler)
+    $(".post_edit_form").on('submit',edit_post_handler)
+})
+
+function edit_post_handler(event){
+    event.preventDefault();
+    let post_id = parseInt($(this).parents('.post').attr('id').match(/[0-9]+/)[0]);
+     let data = { 'post_id': post_id,
+                 'post_title': $(this).find('#post_title').val(),
+                 'post_desc': $(this).find('#post_desc').val()}
+    serverRequestControl(this, method='POST', url="{% url 'posts:update_post' %}", id=post_id,
+                        data=data, callback= update_post)
+}
+
+function delete_post_handler(event){
+    let confirmation = confirm("DO YOU WANT TO DELETE THIS POST??")
+    if (confirmation){
+    let post_id = parseInt($(this).parents('.post').attr('id').match(/[0-9]+/)[0]);
+    serverRequestControl(this, method='POST', url="{% url 'posts:delete_post' %}", id=post_id,
+                        data={'post_id': post_id}, callback= delete_post)
+    }
+}
+
+function search_handler(event){
+    event.preventDefault();
+    if ($(this).hasClass('search_bar')){
+        serverRequestControl(this,method='GET',url="{% url 'posts:search' %}",
+                              id=0, data={'q': $(this).val()}, callback= search_result)
+    }else{
+        serverRequestControl(this,method='GET',url="{% url 'posts:search' %}",
+                              id=0, data={'q': $(this).find('.form-control').val()}, callback= search_result)
+    }
+}
+
+function edit_comment_handler(event){
+    event.preventDefault();
+    let comment_id = parseInt(this.id.match(/[0-9]+/)[0]);
+    let data={'comment_id': comment_id ,
+         comment_text : $(this).find('.form-control').val(),}
+    serverRequestControl(this, method='POST', url="{% url 'posts:update_comment' %}", id=comment_id, data=data ,callback=edit_comment);
+}
+
+function add_comment_handler(event){
+    event.preventDefault();
+    let post_id = parseInt($(this).parents('.post').attr('id').match(/[0-9]+/)[0]);
+    let data={'post_id': post_id ,
+         comment_text : $(this).find('.form-control').val(),};
+    serverRequestControl(this, method='POST', url="{% url 'posts:add_comment' %}", id=post_id, data=data ,callback=add_comment);
+}
+
+function delete_comment_handler(event){
+    let confirmation = confirm("DO YOU WANT TO DELETE THIS COMMENT?")
+    if (confirmation){
+    let comment_id = parseInt($(this).parents('.comment').attr('id').match(/[0-9]+/)[0]);
+    serverRequestControl(this,method='GET',url="{% url 'posts:delete_comment' %}",
+    id=comment_id, data={'comment_id': comment_id}, callback= delete_comment)
+    }
+}
+
+function react_handler(event){
+    let post_id = parseInt($(this).parents('.post').attr('id').match(/[0-9]+/)[0]);
+    serverRequestControl(this,method='GET',url="{% url 'posts:react' %}",
+                              id=post_id, data={'post_id': post_id}, callback= react)
+}
+</script>
 </html>

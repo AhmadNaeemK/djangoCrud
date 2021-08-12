@@ -1,0 +1,5 @@
+Django==3.2.5
+asgireg==3.4.1
+pytz==2019.3
+sqlparse==0.4.1
+Pillow==7.0.0
